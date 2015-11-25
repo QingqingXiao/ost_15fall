@@ -1,0 +1,321 @@
+#!/bin/bash
+
+#check if option exists.
+#exit 1 if no option exist
+if [ $# -eq 0 ]
+then
+	echo "No option is given" >&2
+	exit 1
+fi
+
+#check if the directory exsists. If not, create one.
+if [[ ! -d $HOME/.calendar ]]
+then
+	echo "create directory"
+	mkdir $HOME/.calendar
+	exit 0
+fi
+
+
+#create function begins
+if [[ $1 == create ]]
+then
+  #start parsing create
+  #check number of arguments
+  if [[ $# -ge 3 ]] && [[ $# -le 4 ]]
+  then
+  	#convert input date string to timestamp
+  	event_id=$(date --date="$2" '+%s')
+  	#check date format
+  	if [[ $? -ne 0 ]]
+  	then
+  		echo "Invalid arguments: Invalid date" >&2
+  		exit 2
+    fi
+    #check whether length is valid
+    if [[ $3 -le 0 ]]
+    then
+		echo "Invalid arguments: Invalid length" >&2
+		exit 2
+	fi
+	#check is there any given title
+	#if title is given, let tile be the given one
+	if [[ $# -eq 4 ]]
+	then
+		title=$4
+		n=0
+		while read line ; do
+			description="${description}$line "
+		done
+		echo $description
+	#if title is not provides, use first line fo STDIN as title
+	else
+		n=0
+		while read line ; do
+			if [[ n -eq 0 ]]
+			then 
+				title=$line
+			else
+				description="${description}$line "
+			fi
+			let n=n+1
+    	done
+    	echo $description
+	fi
+	#check if event has already exited
+	if [[ -f "$HOME/.calendar/${event_id}" ]]
+	then
+		echo "Event has already exited" >&2
+		exit 1
+	#create event file
+	else
+		printf "$3\n${title}\n${description}\n" > $HOME/.calendar/${event_id}
+		echo "Event ${event_id} has been created"
+		exit 0
+	fi
+  #notice user wrong number of parameters
+  else
+  	echo "The wrong number of arguments are given to an option (too few or too many)" >&2
+  	exit 2
+  fi
+#create function ends
+
+#delete function begins
+elif [[ $1 == delete ]]
+then
+	#check number of parameters
+	if [[ $# -eq 2 ]]
+  	then
+  		event_id=$2
+  		#check input date format
+  		date -d @${event_id}
+		if [[ $? -ne 0 ]]
+		then
+			echo "Invalid arguments: Invalid date" >&2
+  			exit 2
+		fi
+  		#check if the event exists
+  		#if the event exists, delete it, exit 0
+  		if [[ -f "$HOME/.calendar/${event_id}" ]]
+  		then
+  			#check if current file is a broken symbolic link
+			#if so skip this event
+			if [[ -L $"$HOME/.calendar/${event_id}" ]] 
+			then 
+				cat "$HOME/.calendar/${event_id}" > /dev/null 2>&1
+				if [[ $? -ne 0 ]]
+				then
+					echo "broken symbolic" >&2
+					rm -f "$HOME/.calendar/${event_id}"
+					exit 2
+				fi
+			fi
+  			rm "$HOME/.calendar/${event_id}"
+  			echo "delete successfully"
+  			exit 0
+  		#if the event does not exist, provide error message, exit 1
+  		else
+  			echo "Event ${event_id} does not exist" >&2
+  			exit 1
+  		fi
+  	#if the number of parameters is valid, exit 2
+  	else
+  		echo "The wrong number of arguments are given to an option (too few or too many)" >&2
+  		exit 2
+  	fi
+ #delete function ends
+
+#show function begins
+elif [[ $1 == show ]]
+then
+	#check number of parameters
+	if [[ $# -eq 2 ]] || [[ $# -eq 3 ]]
+	then
+		event_id=$2
+		#if the event does exist
+		if [[ -f "$HOME/.calendar/${event_id}" ]]
+  		then
+  			#check if current file is a broken symbolic link
+			#if so skip this event
+			if [[ -L $"$HOME/.calendar/${event_id}" ]] 
+			then 
+				cat "$HOME/.calendar/${event_id}" > /dev/null 2>&1
+				if [[ $? -ne 0 ]]
+				then
+					echo "broken symbolic" >&2
+					rm -f "$HOME/.calendar/${event_id}"
+					exit 2
+				fi
+			fi
+  			#if specific requirement is not provides, print all the information
+  			if [[ $# -eq 2 ]]
+  			then
+  				cat "$HOME/.calendar/${event_id}"
+  				exit 0
+  			#if requirement exists, print specific info
+  			else
+  				#if title is required
+  				if [[ $3 == title ]]
+  				then
+  					sed '2!d' "$HOME/.calendar/${event_id}" 
+  					exit 0
+  				#if description is required
+  				elif [[ $3 == description ]]
+  				then
+  					sed -n '3,$ p' "$HOME/.calendar/${event_id}" 
+  					exit 0
+  				#if time is required
+  				elif [[ $3 == time ]]
+  				then
+  					startTime=$(date -d @${event_id})
+  					length=$(sed -n '1 p' "$HOME/.calendar/${event_id}")
+  					endTime=$(date -d "${startTime} + ${length} minutes")
+  					outputMessage="${startTime} to ${endTime}"
+  					echo ${outputMessage}
+  				#if other info is required
+  				else
+  					echo "No such option" >&2
+  					exit 2
+  				fi
+  			fi
+  		#the event does not exist, print error message
+  		else
+  			echo "Event ${event_id} does not exist" >&2
+  			exit 1
+  		fi
+  	#number of parameters is wrong, message the error
+	else
+		echo "The wrong number of arguments are given to an option (too few or too many)" >&2
+  		exit 2
+	fi
+#show function ends
+
+#link function begins
+elif [[ $1 == link ]]
+then	
+	#check number of parameters
+	if [[ $# -eq 3 ]]
+	then
+		event_id=$3
+		#check format of input date
+		date -d @${event_id}
+		if [[ $? -ne 0 ]]
+		then
+			echo "Invalid arguments: Invalid date" >&2
+  			exit 2
+		fi
+		user_id=$2
+		link_path="/home/${user_id}/.calendar/${event_id}"
+		#check if event for current user exists
+		if [[ -f "$HOME/.calendar/${event_id}" ]]
+		then
+			echo "Event already exist" >&2
+			exit 1
+		fi
+		#check whether the original event exists
+		#if exists, create a symbolic link
+		if [[ -f ${link_path} ]]
+		then
+			ln -s ${link_path} "$HOME/.calendar/${event_id}"
+			exit 0
+		#if the oroginal event does not exists, exit with error
+		else
+			echo "Original event does not exist" >&2
+			exit 1
+		fi
+	#number of parameters is wrong
+	else
+		echo "The wrong number of arguments are given to an option (too few or too many)" >&2
+  		exit 2
+	fi
+#link function ends
+
+#export function begins
+elif [[ $1 == export ]]
+then
+	#check number of parameters
+	if [[ $# -eq 4 ]]
+	then
+		user_id=$2
+		#get begin_time and check its format
+		begin_time=$(date --date="$3" '+%s')
+		if [[ $? -ne 0 ]]
+		then
+			echo "Invalid arguments: Invalid begin_time" >&2
+  			exit 2
+		fi
+		#get begin_time and check its format
+		end_time=$(date --date="$4" '+%s')
+		if [[ $? -ne 0 ]]
+		then
+			echo "Invalid arguments: Invalid end_time" >&2
+  			exit 2
+		fi
+		#specify path for user
+		calendar_path="/home/${user_id}/.calendar"
+		#create title for export file
+		printf "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Open Source Tools//Calendar for ${user_id}//EN\n" > $calendar_path/exportfile
+		#find event fits required timeslot
+		ls $calendar_path | tr "  " "\n" | awk -v start=$begin_time -v end=$end_time '$1 >= start && $1 <= end { print $1 } ' > tmpfile
+		#create event info for events that meets the criteria
+		while read line ; do
+			event_id=$line
+			file="$calendar_path/${event_id}"
+			#check if current file is a broken symbolic link
+			#if so skip this event
+			if [[ -L $file ]] 
+			then 
+				cat $file > /dev/null 2>&1
+				if [[ $? -ne 0 ]]
+				then
+					rm -f $file
+					continue;
+				fi
+			fi
+			printf "BEGIN:VEVENT\nUID:${user_id}_${event_id}\n" >> $calendar_path/exportfile
+			#formated BEGINTIME
+			event_begin_time=$(date -d @${event_id} +'%Y%m%dT%H%M%SZ')
+			startTime_date=$(date -d @${event_id})
+  			length=$(sed -n '1 p' $file)
+  			endTime_date=$(date -d "${startTime_date} + ${length} minutes")
+  			event_end_timestamp=$(date --date="${endTime_date}" '+%s')		
+  			#formated ENDTIME
+  			event_end_time=$(date -d @${event_end_timestamp} +'%Y%m%dT%H%M%SZ')
+  			printf "DTSTAMP:${event_begin_time}\nORGANIZER;CN=${user_id}:MAILTO:${user_id}@cims.nyu.edu\nDTSTART:${event_begin_time}\n" >> $calendar_path/exportfile
+			printf "DTEND:${event_end_time}\n" >> $calendar_path/exportfile
+			event_title=$(sed -n '2 p' $file)
+			event_description=$(sed -n '3,$ p' $file)
+			printf "SUMMARY:${event_title}\nDESCRIPTION:${event_description}\nEND:VEVENT\n" >> $calendar_path/exportfile
+		done < tmpfile
+		printf "END:VCALENDAR\n" >> $calendar_path/exportfile
+		#cleanup
+		cat $calendar_path/exportfile
+		rm -f tmpfile
+		rm -f $calendar_path/exportfile
+		exit 0
+	#wrong number of parameters is provided
+	else
+		echo "The wrong number of arguments are given to an option (too few or too many)" >&2
+  		exit 2
+	fi
+#export function ends
+
+#if other option is required
+else
+	echo "No such option exists" >&2
+	exit 2 
+fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
