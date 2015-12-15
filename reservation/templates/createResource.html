@@ -1,0 +1,12 @@
+{% extends "template/frame.html" %}
+
+{% block content %}
+	<div class='container-fluid'>
+		<p class='lead'>
+			{{ message }}
+		</p>
+		<div class='col-lg-12'>
+		    	<button type="button" class='btn btn-primary' onclick="history.go(-1)">Back</button>
+		</div>
+	</div>
+{% endblock %}
