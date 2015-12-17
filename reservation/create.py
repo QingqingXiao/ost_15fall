@@ -15,10 +15,10 @@ class createResource(webapp2.RequestHandler):
 		template = JINJA_ENVIRONMENT.get_template('templates/createResource.html')
 		self.response.write(template.render())
 	def post(self):
-		title = self.request.get('title')
-		content = self.request.get('content')
-		if title == '' :
-			template_values = {'message' : 'Resource name should not be null!'}
+		name = self.request.get('name')
+		description = self.request.get('description')
+		if name == '' or description == '':
+			template_values = {'message' : 'Resource name and description could not be null!'}
 			template = JINJA_ENVIRONMENT.get_template('templates/message.html')
 			self.response.write(template.render(template_values))
 		else:
@@ -37,8 +37,8 @@ class createResource(webapp2.RequestHandler):
 			resource.put()
 			rid = resource.key.id()
 
-			url = '/view?qid=' + repr(int(qid))
-			self.redirect(url)
+			# url = '/view?qid=' + repr(int(qid))
+			# self.redirect(url)
 
 application = webapp2.WSGIApplication([('/creater', createResource)], 
 										debug = True)

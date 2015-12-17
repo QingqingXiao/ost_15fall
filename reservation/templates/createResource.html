@@ -1,12 +1,30 @@
-{% extends "template/frame.html" %}
+{% extends "templates/base.html" %}
 
 {% block content %}
-	<div class='container-fluid'>
-		<p class='lead'>
-			{{ message }}
-		</p>
-		<div class='col-lg-12'>
-		    	<button type="button" class='btn btn-primary' onclick="history.go(-1)">Back</button>
-		</div>
-	</div>
+	<form id='add-question' role='form' method='POST' action='/creater'>
+	    	<div class='container-fluid'>
+	    		<!-- <div class='form-group col-lg-12 text-right'>
+	    			<a href="/load" target="_blank">upload image</a>
+	    		</div> -->
+		    	<div class='form-group col-lg-12'>
+		    		<label for="title">Name:</label>
+		    		<input type="text" class="form-control" maxlength="256" name="name" placeholder="Name of your resource">
+		  	</div>
+	
+		  	<div class='form-group col-lg-12'>
+		    		<label for="title">Tags (separated by semicolon):</label>
+		    		<input type="text" class="form-control" name="tags" placeholder="Tags of your resource">
+		  	</div>
+	
+		  	<div class='form-group col-lg-12'>
+		  		<label for="title">Description:</label>
+		  		<textarea class="form-control" rows="6" placeholder='Description of the resource here' name='description' id='description'></textarea>
+		  	</div>
+			
+		    	<div class='form-group col-lg-12'>
+		    		<button type="button" class='btn btn-primary' onclick="location.href='/view'">Cancel</button>
+		  		<input type='submit' class='btn btn-primary' value='Submit' />
+	  		</div>
+	  	</div>
+    </form>
 {% endblock %}

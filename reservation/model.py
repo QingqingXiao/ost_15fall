@@ -20,4 +20,5 @@ class Reservation(ndb.Model):
 	startTime = ndb.DateTimeProperty()
 	endTime = ndb.DateTimeProperty()
 	description = ndb.StringProperty()
+	rid = ndb.IntergerProperty()
 	createTime = ndb.DateTimeProperty(auto_now_add=True)
