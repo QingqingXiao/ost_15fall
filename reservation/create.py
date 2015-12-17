@@ -37,8 +37,8 @@ class createResource(webapp2.RequestHandler):
 			resource.put()
 			rid = resource.key.id()
 
-			# url = '/view?qid=' + repr(int(qid))
-			# self.redirect(url)
+			url = '/view?rid=' + repr(int(rid))
+			self.redirect(url)
 
 application = webapp2.WSGIApplication([('/creater', createResource)], 
 										debug = True)

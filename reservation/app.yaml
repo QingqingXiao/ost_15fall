@@ -9,6 +9,8 @@ handlers:
   script: create.application
   login: required
 
+- url: /view
+  script: view.application
 
 
 libraries:

@@ -1,7 +1,7 @@
 import webapp2
 import jinja2
 import os
-import models
+import model
 import re
 
 NUM_IN_A_PAGE = 20
@@ -20,7 +20,7 @@ class View(webapp2.RequestHandler):
             self.viewReservations(rid)
     def viewAllResources(self):
         tag = self.request.get('tag')
-        query = models.Resource.query().order(-models.Resource.modifyTime)
+        query = model.Resource.query().order(-model.Resource.modifyTime)
         fetch = query.fetch()
         rs = []
         if tag != '':
@@ -48,23 +48,24 @@ class View(webapp2.RequestHandler):
         # temp = show[0].key.id()
         '''
         template_values = {'message': tag}
-        template = JINJA_ENVIRONMENT.get_template('template/message.html')
+        template = JINJA_ENVIRONMENT.get_template('templates/message.html')
         self.response.write(template.render(template_values))
         '''
         template_values = {'next': next, 'page': page, 'resources': show, 'tag':tag}
-        template = JINJA_ENVIRONMENT.get_template('template/viewAllResources.html')
+        template = JINJA_ENVIRONMENT.get_template('templates/viewAllResources.html')
         self.response.write(template.render(template_values))
         
     def viewReservations(self, rid):
         rid = long(rid)
         rid = int(rid)
-        resource = models.Resource.get_by_id(rid)
+        resource = model.Resource.get_by_id(rid)
         #description = self.processContent(resource.description)
         #description = self.processContent()
         #print description
-        print resource.description
-        # question = models.Question.get_by_id(6410839984701440)
-        query = models.Reservation.query(models.Reservation.rid==rid)
+        description = resource.description
+        print description
+        # question = model.Question.get_by_id(6410839984701440)
+        query = model.Reservation.query(model.Reservation.rid==rid)
         fetch = query.fetch()
         show = sorted(fetch,key=lambda x: abs(x.startTime),reverse=True)
         reservationContent = []
@@ -73,12 +74,12 @@ class View(webapp2.RequestHandler):
             reservationContent.append(reservation.description)
         
         # print acontent
-        template_values = {'resource': resource, 'revervations':show, 'resource': resource, 'reservationContent': reservationContent}
-        template = JINJA_ENVIRONMENT.get_template('template/viewReservations.html')
+        template_values = {'resource': resource, 'revervations':show, 'description': description, 'reservationContent': reservationContent}
+        template = JINJA_ENVIRONMENT.get_template('templates/viewReservations.html')
         self.response.write(template.render(template_values))
         '''
         template_values = {'message': qcontent}
-        template = JINJA_ENVIRONMENT.get_template('template/message.html')
+        template = JINJA_ENVIRONMENT.get_template('templates/message.html')
         self.response.write(template.render(template_values))
         '''
     
@@ -100,6 +101,5 @@ class View(webapp2.RequestHandler):
         return content
     
 application = webapp2.WSGIApplication([
-    ('/view', View),
-    ('/viewReservation', View),
+    ('/view', View)
 ], debug=True)
