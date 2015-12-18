@@ -17,6 +17,14 @@ handlers:
   login: required
 
 
+- url: /
+  script: landing.application
+
+- url: /deleteAll
+  script: deleteAll.application
+  
+
+
 libraries:
 - name: webapp2
   version: latest

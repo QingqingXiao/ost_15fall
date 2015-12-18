@@ -35,9 +35,9 @@ class createResource(webapp2.RequestHandler):
                     tag = tag.strip()
                     tags.append(tag)
             resource.tags = tags
+            print resource
             resource.put()
             rid = resource.key.id()
-
             url = '/view?rid=' + repr(int(rid))
             self.redirect(url)
 
@@ -77,7 +77,10 @@ class createReservation(webapp2.RequestHandler):
                     template_values = {'message': 'This timeslot is not available!'}
                     template = JINJA_ENVIRONMENT.get_template('templates/message.html')
                     self.response.write(template.render(template_values))
+
             resource = model.Resource.get_by_id(rid)
+            resource.lastReserveTime = datetime.datetime.now().time()
+            resource.put()
             reservation = model.Reservation()
             reservation.author = users.get_current_user()
             reservation.description = description

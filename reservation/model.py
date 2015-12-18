@@ -13,6 +13,7 @@ class Resource(ndb.Model):
 	description = ndb.StringProperty()
 	createTime = ndb.DateTimeProperty(auto_now_add=True)
 	modifyTime = ndb.DateTimeProperty(auto_now=True)
+	lastReserveTime = ndb.DateTimeProperty()
 
 
 class Reservation(ndb.Model):

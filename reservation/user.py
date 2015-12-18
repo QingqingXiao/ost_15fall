@@ -13,15 +13,19 @@ JINJA_ENVIRONMENT = jinja2.Environment(
 
 class View(webapp2.RequestHandler):
     def get(self):
-        rid = self.request.get('rid')
+        uid = self.request.get('uid')
         if rid == '':
-            self.viewAllResources()
+            self.viewYourResource()
         else:
-            self.viewReservations(rid)
-    def viewAllResources(self):
-        tag = self.request.get('tag')
-        query = model.Resource.query().order(-model.Resource.createTime)
+            self.viewYourReservation(uid)
+    def viewYourResource(self):
+        uid = self.request.get('uid')
+        uid = long(uid)
+        uid = int(uid)
+
+        query = model.Resource.query().order(-model.Resource.lastReserveTime)
         fetch = query.fetch()
+        tag = self.request.get('tag')
         rs = []
         if tag != '':
             for r in fetch:
@@ -53,10 +57,10 @@ class View(webapp2.RequestHandler):
         self.response.write(template.render(template_values))
         '''
         template_values = {'next': next, 'page': page, 'resources': show, 'tag':tag}
-        template = JINJA_ENVIRONMENT.get_template('templates/viewAllResources.html')
+        template = JINJA_ENVIRONMENT.get_template('templates/viewYourResource.html')
         self.response.write(template.render(template_values))
         
-    def viewReservations(self, rid):
+    def viewReservations(self, uid, rid):
         rid = long(rid)
         rid = int(rid)
         resource = model.Resource.get_by_id(rid)
