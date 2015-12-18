@@ -1,0 +1,81 @@
+{% extends "templates/base.html" %}
+
+{% block content %}
+	<form id='add-reservation' role='form' method='POST' action='/createreservation'>
+	    <div class='container-fluid'>
+    		<div class='form-group col-lg-12'>
+    			You will make an reservation to resource: 
+    			"<strong>{{ resource.name|truncate(75,True) }}</strong>" 
+    		</div>
+
+    	{% set index = 0 %}
+		{% for res in currentReservations %}
+			<div class='col-lg-8' style='word-break:break-all;'>
+				Reservation made by <strong> {{ res.author }}</strong> :
+					starts from: {{ res.startTime }}, ends at {{ res.endTime }}
+			</div>
+		
+		{% endfor %}
+
+			<br><br>
+	    	<div class='form-group col-lg-12'>
+	    		<label for="title">Nickname:</label>
+	    		<input type="text" class="form-control" maxlength="256" name="name" placeholder="Name prefered to be called">
+	  		</div>
+	  		
+	  		<div class='form-group col-lg-12'>
+	    		<label for="title">Start from:</label>
+			    <div class="row">
+			            <div class="form-group">
+			                <div class='input-group date' id='startTime' >
+			                    <input type='text' class="form-control" name='startTime'/>
+			                    <span class="input-group-addon">
+			                        <span class="glyphicon glyphicon-calendar"></span>
+			                    </span>
+			                </div>
+			            </div>
+			        <script type="text/javascript">
+			            $(function () {
+			                $('#startTime').datetimepicker();
+			            });
+			        </script>
+			    </div>
+	  		</div>
+
+
+	  		<div class='form-group col-lg-12'>
+	    		<label for="title">End at:</label>
+			    <div class="row">
+			            <div class="form-group">
+			                <div class='input-group date' id='endTime'>
+			                    <input type='text' class="form-control" name='endTime'/>
+			                    <span class="input-group-addon">
+			                        <span class="glyphicon glyphicon-calendar"></span>
+			                    </span>
+			                </div>
+			            </div>
+			        <script type="text/javascript">
+			            $(function () {
+			                $('#endTime').datetimepicker();
+			            });
+			        </script>
+			    </div>
+	  		</div>
+	  		
+
+
+	  	
+	  		<input type="hidden" class="form-control" name="rid" value="{{ resource.key.id() }}">
+
+	  		<div class='form-group col-lg-12'>
+	    		<label for="title">Description:</label>
+	    		<input type="text" class="form-control" maxlength="256" name="description" placeholder="Description here">
+	  		</div>
+		
+	    	<div class='form-group col-lg-12'>
+	    		<button type="button" class='btn btn-primary' onclick="location.href='/view?rid={{ resource.key.id() }}'">Cancel</button>
+	  		<input type='submit' class='btn btn-primary' value='Submit' />
+  			</div>
+  		</div>
+    </form>
+{% endblock %}

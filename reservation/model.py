@@ -17,6 +17,7 @@ class Resource(ndb.Model):
 
 class Reservation(ndb.Model):
 	author = ndb.UserProperty()
+	nickname = ndb.StringProperty()
 	startTime = ndb.DateTimeProperty()
 	endTime = ndb.DateTimeProperty()
 	description = ndb.StringProperty()

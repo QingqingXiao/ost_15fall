@@ -34,22 +34,22 @@
 	</div>
 		
 	{% set index = 0 %}
-	{% for reservation in reservationContent %}
+	{% for res in reservations %}
 		<div class='container-fluid'>
 			<div class='col-lg-12'><br></div>
 			<div class='col-lg-8' style='word-break:break-all;'>
-				Reservation made by <strong> {{ reservation.author }}</strong> 
+				Reservation made by <strong> {{ res.author }}</strong> 
 
-				<p> {{ reservation.description }}</p>
+				<p> {{ res.description }}</p>
 			</div>
 			<!-- no tag -->
 
 			<div class='col-lg-2'>
-				<button type="button" onclick="location.href='/delete?aid={{ reservation.key.id() }}'" class="btn btn-default">Delete</button>
+				<button type="button" onclick="location.href='/delete?resid={{ res.key.id() }}'" class="btn btn-default">Delete</button>
 			</div>
 			<div class='col-lg-10' style="font-size:16px;line-height:16px;margin:10px 0 0 0 ">
-				This reservation starts at <samp>{{ reservation.startTime }}</samp>, 
-				and ends at  <samp>{{ reservation.endTime }}</samp> 
+				This reservation starts at <samp>{{ res.startTime }}</samp>, 
+				and ends at <!--  <samp>{{ res.endTime }}</samp> !!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 			</div>
 		</div>
 		

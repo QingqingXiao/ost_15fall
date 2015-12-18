@@ -65,13 +65,13 @@ class View(webapp2.RequestHandler):
         description = resource.description
         print description
         # question = model.Question.get_by_id(6410839984701440)
-        query = model.Reservation.query(model.Reservation.rid==rid)
+        query = model.Reservation.query(model.Reservation.rid==rid).order(-model.Reservation.createTime)
         fetch = query.fetch()
-        show = sorted(fetch,key=lambda x: abs(x.startTime),reverse=True)
+        show = fetch
         reservationContent = []
-        for reservation in show:
+        for res in show:
             #reservationContent.append(self.processContent(reservation.description))
-            reservationContent.append(reservation.description)
+            reservationContent.append(res.description)
         
         # print acontent
         template_values = {'resource': resource, 'revervations':show, 'description': description, 'reservationContent': reservationContent}

@@ -5,12 +5,16 @@ api_version: 1
 threadsafe: true
 
 handlers: 
-- url: /(creater)
+- url: /(creater|createreservation)
   script: create.application
   login: required
 
 - url: /view
   script: view.application
+
+- url: /delete
+  script: delete.application
+  login: required
 
 
 libraries:
