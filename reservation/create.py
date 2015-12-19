@@ -4,7 +4,7 @@ import os
 import webapp2
 import jinja2
 import model
-from datetime import datetime
+from datetime import datetime, timedelta
 
 JINJA_ENVIRONMENT = jinja2.Environment(
                         loader = jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -72,11 +72,16 @@ class createReservation(webapp2.RequestHandler):
         startTime = self.request.get('startTime')
         #startTime = datetime.strptime(startTime, "%m/%d/%Y %I:%M %p")
         startTime = datetime.strptime(startTime, "%H")
-        startTime = startTime.time()
-        endTime = self.request.get('endTime')
+        
+        duration = self.request.get('endTime')
         #endTime = datetime.strptime(endTime, "%m/%d/%Y %I:%M %p")
-        endTime = datetime.strptime(endTime, "%H")
+        duration = datetime.strptime(duration, "%H")
+        addHours = duration.hour
+        endTime = startTime + timedelta(hours=addHours)
         endTime = endTime.time()
+        startTime = startTime.time()
+        
+        
         rid = self.request.get('rid')
         rid = long(rid)
         rid = int(rid)
