@@ -3,6 +3,7 @@ import jinja2
 import os
 import model
 import re
+import pytz
 from datetime import datetime
 
 NUM_IN_A_PAGE = 10
@@ -57,12 +58,6 @@ class View(webapp2.RequestHandler):
         resource = model.Resource.get_by_id(rid)
         query = model.Reservation.query(model.Reservation.rid==rid).order(-model.Reservation.createTime)
         fetch = query.fetch()
-        # show = fetch
-        # reservationContent = []
-        # for res in show:
-        #     reservationContent.append(res.description)
-        
-        # template_values = {'resource': resource, 'revervations':show, 'description': description, 'reservationContent': reservationContent}
         show = []
         currentTime = datetime.now()
         for res in fetch:
@@ -70,7 +65,7 @@ class View(webapp2.RequestHandler):
                 show.append(res)
         
         
-        template_values = {'resource': resource, 'revervations': show}
+        template_values = {'resource': resource, 'reservations': show}
         template = JINJA_ENVIRONMENT.get_template('templates/viewReservations.html')
         self.response.write(template.render(template_values))
 

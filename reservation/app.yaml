@@ -20,6 +20,9 @@ handlers:
   script: edit.application
   login: required
 
+- url: /export
+  script: export.application
+
 
 - url: /
   script: landing.application

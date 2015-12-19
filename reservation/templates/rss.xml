@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+
+
+<channel>
+  
+  <name>
+    {{resource.owner}}
+  </name>
+  <tags>
+    {{resource.tags}}
+  </tags>
+  <description>
+    {{resource.description}}
+  </description>
+
+  {% set index = 0 %}
+    {% for res in reservations %}
+      <item>
+        <author>
+          {{res.author}}
+        </author>
+        <nickname>
+          {{res.nickname}}
+        </nickname>
+        <startTime>
+          {{res.startTime}}
+        </startTime>
+        <endTime>
+          {{res.endTime}}
+        </endTime>
+        <description>
+          {{res.description}}
+        </description>
+      </item>
+     
+    {% endfor %}
+</channel>
+
+</rss>
