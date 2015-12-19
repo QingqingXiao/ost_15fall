@@ -37,7 +37,6 @@ class View(webapp2.RequestHandler):
         else:
             page = int(page)
         
-        print rs
         num = len(rs)
         max = int(page) * NUM_IN_A_PAGE
         if max >= num:
@@ -56,7 +55,6 @@ class View(webapp2.RequestHandler):
         rid = int(rid)
 
         resource = model.Resource.get_by_id(rid)
-        description = resource.description
         query = model.Reservation.query(model.Reservation.rid==rid).order(-model.Reservation.createTime)
         fetch = query.fetch()
         # show = fetch
@@ -66,12 +64,13 @@ class View(webapp2.RequestHandler):
         
         # template_values = {'resource': resource, 'revervations':show, 'description': description, 'reservationContent': reservationContent}
         show = []
+        currentTime = datetime.now()
         for res in fetch:
-            if res.endTime > datetime.now():
-                print '!#$@#$#$#%$@'
+            if res.startTime.hour > currentTime.hour:
                 show.append(res)
         
-        template_values = {'resource': resource, 'revervations': show, 'description': description}
+        
+        template_values = {'resource': resource, 'revervations': show}
         template = JINJA_ENVIRONMENT.get_template('templates/viewReservations.html')
         self.response.write(template.render(template_values))
 

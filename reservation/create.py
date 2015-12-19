@@ -20,8 +20,10 @@ class createResource(webapp2.RequestHandler):
         description = self.request.get('description')
         availableStartTime = self.request.get('availableStartTime')
         availableEndTime = self.request.get('availableEndTime')
-        availableStartTime = datetime.strptime(availableStartTime, "%I %p")
-        availableEndTime = datetime.strptime(availableEndTime, "%I %p")
+        availableStartTime = datetime.strptime(availableStartTime, "%H")
+        availableStartTime = availableStartTime.time()
+        availableEndTime = datetime.strptime(availableEndTime, "%H")
+        availableEndTime = availableEndTime.time()
 
         if name == '' or description == '':
             template_values = {'message' : 'Resource name and description could not be null!'}
@@ -69,10 +71,12 @@ class createReservation(webapp2.RequestHandler):
         description = self.request.get('description')
         startTime = self.request.get('startTime')
         #startTime = datetime.strptime(startTime, "%m/%d/%Y %I:%M %p")
-        startTime = datetime.strptime(startTime, "%I %p")
+        startTime = datetime.strptime(startTime, "%H")
+        startTime = startTime.time()
         endTime = self.request.get('endTime')
         #endTime = datetime.strptime(endTime, "%m/%d/%Y %I:%M %p")
-        endTime = datetime.strptime(endTime, "%I %p")
+        endTime = datetime.strptime(endTime, "%H")
+        endTime = endTime.time()
         rid = self.request.get('rid')
         rid = long(rid)
         rid = int(rid)
@@ -94,16 +98,25 @@ class createReservation(webapp2.RequestHandler):
             query = model.Reservation.query(model.Reservation.rid==rid)
             currentReservations = query.fetch()
             canReserve = True
+            unavailable = False
             for res in currentReservations:
-                canReserve = (startTime < res.startTime and endTime < res.startTime) or (startTime > res.endTime and endTime > res.endTime)
+                canReserve = (startTime.hour <= res.startTime.hour and endTime.hour <= res.startTime.hour) or (startTime.hour >= res.endTime.hour and endTime.hour >= res.endTime.hour)
                 if not canReserve:
                     template_values = {'message': 'This timeslot is not available!'}
                     template = JINJA_ENVIRONMENT.get_template('templates/message.html')
                     self.response.write(template.render(template_values))
                     break
-            if canReserve:
+            
+            unavailable = (startTime.hour < resource.availableStartTime.hour and endTime.hour < resource.availableStartTime.hour) or (startTime.hour > resource.availableEndTime.hour and endTime.hour > resource.availableEndTime.hour)
+            if unavailable:
+                template_values = {'message': 'This resource is not allowed to reserve during this time!'}
+                template = JINJA_ENVIRONMENT.get_template('templates/message.html')
+                self.response.write(template.render(template_values))
+            if canReserve and (not unavailable):
                 resource = model.Resource.get_by_id(rid)
-                resource.lastReserveTime = datetime.now()
+                currentTime = datetime.now()
+                currentTime = currentTime.time()
+                resource.lastReserveTime = currentTime
                 resource.put()
                 resource = model.Resource.get_by_id(rid)
                 reservation = model.Reservation()
@@ -116,7 +129,7 @@ class createReservation(webapp2.RequestHandler):
                 reservation.rid = int(rid)
                 reservation.put()
                 temp = repr(int(rid))
-                url = '/viewReservations?rid=' + temp
+                url = '/view?rid=' + temp
                 self.redirect(url)
 
 

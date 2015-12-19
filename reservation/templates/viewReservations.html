@@ -1,6 +1,7 @@
 {% extends "templates/base.html" %}
 
 {% block content %}
+	
 	<div class='container-fluid'>
 		<div class='col-lg-7' style='word-break:break-all;'>
 			<strong>{{ resource.name }}</strong> 
@@ -16,16 +17,16 @@
 		</div>
 		<br><br>
 
-
-
-
-
+		<div class='col-lg-10' style="font-size:16px;line-height:16px;margin:10px 0 0 0 ">
+			Created on <samp>{{ resource.createTime }}</samp>, 
+			last modified on <samp>{{ resource.modifyTime }}</samp> 
+			by <samp class='bg-info'>{{ resource.owner }}</samp>
+		</div>
 
 
 		<div class='col-lg-10' style="font-size:16px;line-height:16px;margin:10px 0 0 0 ">
-			created on <samp>{{ resource.createTime }}</samp>, 
-			last modified on <samp>{{ resource.modifyTime }}</samp> 
-			by <samp class='bg-info'>{{ resource.owner }}</samp>
+			This resource is avaiable between <samp>{{ resource.availableStartTime }}</samp>, 
+			and  <samp>{{ resource.availableEndTime }}</samp> 
 		</div>
 
 		<div class='col-lg-2'>

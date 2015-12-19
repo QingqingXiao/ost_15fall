@@ -21,7 +21,7 @@
 			    <div class="row">
 			            <div class="form-group">
 			                <div class='input-group date' id='startTime' >
-			                    <input type='text' class="form-control" name='availableStartTime'/>
+			                    <input type='text' class="form-control" placeholder="Select time from the button on the right" name='availableStartTime'/>
 			                    <span class="input-group-addon">
 			                        <span class="glyphicon glyphicon-calendar"></span>
 			                    </span>
@@ -30,7 +30,7 @@
 			        <script type="text/javascript">
 			            $(function () {
 			                $('#startTime').datetimepicker({
-			                	format: "HH A"      
+			                	format: "hh"      
 			                });
 			            });
 			        </script>
@@ -42,7 +42,7 @@
 			    <div class="row">
 			            <div class="form-group">
 			                <div class='input-group date' id='endTime'>
-			                    <input type='text' class="form-control" name='availableEndTime'/>
+			                    <input type='text' class="form-control" placeholder="Select time from the button on the right" name='availableEndTime'/>
 			                    <span class="input-group-addon">
 			                        <span class="glyphicon glyphicon-calendar"></span>
 			                    </span>
@@ -51,7 +51,7 @@
 			        <script type="text/javascript">
 			            $(function () {
 			                $('#endTime').datetimepicker({
-			                	format: "HH A"
+			                	format: "hh"
 			                });
 			            });
 			        </script>

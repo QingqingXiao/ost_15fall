@@ -5,6 +5,7 @@ import jinja2
 import os
 import model
 import re
+from datetime import datetime
 
 
 NUM_IN_A_PAGE = 10
@@ -53,19 +54,18 @@ class ViewYourReservations(webapp2.RequestHandler):
         currentUser = users.get_current_user()
         query = model.Reservation.query(model.Reservation.author==currentUser).order(model.Reservation.startTime)
         fetch = query.fetch()
-        show = fetch
 
-        if len(show) == 0:
+        if len(fetch) == 0:
             template_values = {'message' : 'You have no available reservation!'}
             template = JINJA_ENVIRONMENT.get_template('templates/message.html')
             self.response.write(template.render(template_values))
         else:
-            reservationContent = []
-            for res in show:
-                reservationContent.append(res.description)
-            
-            # print acontent
-            template_values = {'revervations':show}
+            show = []
+            currentTime = datetime.now()
+            for res in fetch:
+                if res.startTime.hour > currentTime.hour:
+                    show.append(res)
+            template_values = {'reservations': show}
             template = JINJA_ENVIRONMENT.get_template('templates/ViewYourReservations.html')
             self.response.write(template.render(template_values))
 
