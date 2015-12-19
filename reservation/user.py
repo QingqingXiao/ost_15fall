@@ -51,7 +51,7 @@ class ViewYourResource(webapp2.RequestHandler):
 class ViewYourReservations(webapp2.RequestHandler):
      def get(self):
         currentUser = users.get_current_user()
-        query = model.Reservation.query(model.Reservation.author==currentUser).order(-model.Reservation.createTime)
+        query = model.Reservation.query(model.Reservation.author==currentUser).order(model.Reservation.startTime)
         fetch = query.fetch()
         show = fetch
 
