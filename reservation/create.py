@@ -18,6 +18,11 @@ class createResource(webapp2.RequestHandler):
     def post(self):
         name = self.request.get('name')
         description = self.request.get('description')
+        availableStartTime = self.request.get('availableStartTime')
+        availableEndTime = self.request.get('availableEndTime')
+        availableStartTime = datetime.strptime(availableStartTime, "%I %p")
+        availableEndTime = datetime.strptime(availableEndTime, "%I %p")
+
         if name == '' or description == '':
             template_values = {'message' : 'Resource name and description could not be null!'}
             template = JINJA_ENVIRONMENT.get_template('templates/message.html')
@@ -27,6 +32,8 @@ class createResource(webapp2.RequestHandler):
             resource.owner = users.get_current_user()
             resource.name = name
             resource.description = description
+            resource.availableStartTime = availableStartTime
+            resource.availableEndTime = availableEndTime
             tags_readin = self.request.get('tags')
             tokens = tags_readin.split(";")
             tags = []
@@ -61,11 +68,15 @@ class createReservation(webapp2.RequestHandler):
         name = self.request.get('name')
         description = self.request.get('description')
         startTime = self.request.get('startTime')
-        #startTime = datetime.datetime.strptime(startTime, "%m/%d/%Y %I:%M %p")
-        startTime = datetime.strptime(startTime, "%m/%d/%Y %I:%M %p")
+        #startTime = datetime.strptime(startTime, "%m/%d/%Y %I:%M %p")
+        startTime = datetime.strptime(startTime, "%I %p")
         endTime = self.request.get('endTime')
-        #endTime = datetime.datetime.strptime(endTime, "%m/%d/%Y %I:%M %p")
-        endTime = datetime.strptime(endTime, "%m/%d/%Y %I:%M %p")
+        #endTime = datetime.strptime(endTime, "%m/%d/%Y %I:%M %p")
+        endTime = datetime.strptime(endTime, "%I %p")
+        rid = self.request.get('rid')
+        rid = long(rid)
+        rid = int(rid)
+        resource = model.Resource.get_by_id(rid)
 
 
         if startTime == '' or endTime == '':

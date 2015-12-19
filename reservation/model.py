@@ -11,6 +11,8 @@ class Resource(ndb.Model):
 	name = ndb.StringProperty()
 	tags = ndb.JsonProperty()
 	description = ndb.StringProperty()
+	availableStartTime = ndb.DateTimeProperty()
+	availableEndTime = ndb.DateTimeProperty()
 	createTime = ndb.DateTimeProperty(auto_now_add=True)
 	modifyTime = ndb.DateTimeProperty(auto_now=True)
 	lastReserveTime = ndb.DateTimeProperty()

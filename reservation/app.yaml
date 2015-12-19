@@ -16,6 +16,10 @@ handlers:
   script: delete.application
   login: required
 
+- url: /edit
+  script: edit.application
+  login: required
+
 
 - url: /
   script: landing.application
@@ -24,8 +28,6 @@ handlers:
   script: user.application
   login: required
 
-- url: /deleteAll
-  script: deleteAll.application
   
 
 
