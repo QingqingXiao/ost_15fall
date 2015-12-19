@@ -12,6 +12,18 @@ indexes:
 
 - kind: Reservation
   properties:
+  - name: author
+  - name: createTime
+    direction: desc
+
+- kind: Reservation
+  properties:
   - name: rid
+  - name: createTime
+    direction: desc
+
+- kind: Resource
+  properties:
+  - name: owner
   - name: createTime
     direction: desc

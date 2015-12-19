@@ -1,8 +1,11 @@
+from google.appengine.api import users
+from sets import Set
 import webapp2
 import jinja2
 import os
 import model
 import re
+
 
 NUM_IN_A_PAGE = 10
 
@@ -11,19 +14,10 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 
-class View(webapp2.RequestHandler):
+class ViewYourResource(webapp2.RequestHandler):
     def get(self):
-        uid = self.request.get('uid')
-        if rid == '':
-            self.viewYourResource()
-        else:
-            self.viewYourReservation(uid)
-    def viewYourResource(self):
-        uid = self.request.get('uid')
-        uid = long(uid)
-        uid = int(uid)
-
-        query = model.Resource.query().order(-model.Resource.lastReserveTime)
+        currentUser = users.get_current_user()
+        query = model.Resource.query(model.Resource.owner==currentUser).order(-model.Resource.createTime)
         fetch = query.fetch()
         tag = self.request.get('tag')
         rs = []
@@ -48,61 +42,34 @@ class View(webapp2.RequestHandler):
         else:
             next = int(page) + 1
             show = rs[(max-10):max]
-        
-        # show = qs
-        # temp = show[0].key.id()
-        '''
-        template_values = {'message': tag}
-        template = JINJA_ENVIRONMENT.get_template('templates/message.html')
-        self.response.write(template.render(template_values))
-        '''
+
         template_values = {'next': next, 'page': page, 'resources': show, 'tag':tag}
         template = JINJA_ENVIRONMENT.get_template('templates/viewYourResource.html')
         self.response.write(template.render(template_values))
-        
-    def viewReservations(self, uid, rid):
-        rid = long(rid)
-        rid = int(rid)
-        resource = model.Resource.get_by_id(rid)
-        #description = self.processContent(resource.description)
-        #description = self.processContent()
-        #print description
-        description = resource.description
-        # question = model.Question.get_by_id(6410839984701440)
-        query = model.Reservation.query(model.Reservation.rid==rid).order(-model.Reservation.createTime)
+
+
+class ViewYourReservations(webapp2.RequestHandler):
+     def get(self):
+        currentUser = users.get_current_user()
+        query = model.Reservation.query(model.Reservation.author==currentUser).order(-model.Reservation.createTime)
         fetch = query.fetch()
         show = fetch
-        reservationContent = []
-        for res in show:
-            #reservationContent.append(self.processContent(reservation.description))
-            reservationContent.append(res.description)
-        
-        # print acontent
-        template_values = {'resource': resource, 'revervations':show, 'description': description, 'reservationContent': reservationContent}
-        template = JINJA_ENVIRONMENT.get_template('templates/viewReservations.html')
-        self.response.write(template.render(template_values))
-        '''
-        template_values = {'message': qcontent}
-        template = JINJA_ENVIRONMENT.get_template('templates/message.html')
-        self.response.write(template.render(template_values))
-        '''
-    
-    def processContent(self, content):
-        # print content
-        images = re.findall(r"(https?://[^\s]*\.jpg|https?://[^\s]*\.png|https?://[^\s]*\.gif)",content)
-        for i in images:
-            # print i
-            replace = ' <img src="'+ i + '"/> '
-            # print replace
-            content = content.replace(i,replace)
-        links = re.findall(r"https?://[^\s]*\.[^\s\"]*",content)
-        for l in links:
-            if l not in images:
-                replace = ' <a href="'+ l + '">' + l + '</a> '
-                # print l
-                # print replace
-                content = content.replace(l+' ' ,replace)
-        return content
+
+        if len(show) == 0:
+            template_values = {'message' : 'You have no available reservation!'}
+            template = JINJA_ENVIRONMENT.get_template('templates/message.html')
+            self.response.write(template.render(template_values))
+        else:
+            reservationContent = []
+            for res in show:
+                reservationContent.append(res.description)
+            
+            # print acontent
+            template_values = {'revervations':show}
+            template = JINJA_ENVIRONMENT.get_template('templates/ViewYourReservations.html')
+            self.response.write(template.render(template_values))
+
     
 application = webapp2.WSGIApplication([
-    ('/view', View)], debug=True)
+    ('/viewyourresource', ViewYourResource),
+    ('/viewyourreservations', ViewYourReservations)], debug=True)

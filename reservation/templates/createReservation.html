@@ -14,7 +14,10 @@
 				Reservation made by <strong> {{ res.author }}</strong> :
 					starts from: {{ res.startTime }}, ends at {{ res.endTime }}
 			</div>
-		
+
+			<div class='col-lg-2'>
+				<button type="button" onclick="location.href='/delete?resid={{ res.key.id() }}'" class="btn btn-default">Delete Reservation</button>
+			</div>
 		{% endfor %}
 
 			<br><br>

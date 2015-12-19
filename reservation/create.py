@@ -61,9 +61,19 @@ class createReservation(webapp2.RequestHandler):
         name = self.request.get('name')
         description = self.request.get('description')
         startTime = self.request.get('startTime')
+        #startTime = datetime.datetime.strptime(startTime, "%m/%d/%Y %I:%M %p")
+        startTime = datetime.strptime(startTime, "%m/%d/%Y %I:%M %p")
         endTime = self.request.get('endTime')
+        #endTime = datetime.datetime.strptime(endTime, "%m/%d/%Y %I:%M %p")
+        endTime = datetime.strptime(endTime, "%m/%d/%Y %I:%M %p")
+
+
         if startTime == '' or endTime == '':
             template_values = {'message': 'Start time or end time cannot be empty!'}
+            template = JINJA_ENVIRONMENT.get_template('templates/message.html')
+            self.response.write(template.render(template_values))
+        elif startTime >= endTime:
+            template_values = {'message': 'Start time has to be ealier than end time!'}
             template = JINJA_ENVIRONMENT.get_template('templates/message.html')
             self.response.write(template.render(template_values))
         else:
@@ -72,25 +82,32 @@ class createReservation(webapp2.RequestHandler):
             rid = int(rid)
             query = model.Reservation.query(model.Reservation.rid==rid)
             currentReservations = query.fetch()
+            canReserve = True
             for res in currentReservations:
-                if startTime > res.startTime or endTime < res.endTime:
+                canReserve = (startTime < res.startTime and endTime < res.startTime) or (startTime > res.endTime and endTime > res.endTime)
+                if not canReserve:
                     template_values = {'message': 'This timeslot is not available!'}
                     template = JINJA_ENVIRONMENT.get_template('templates/message.html')
                     self.response.write(template.render(template_values))
+                    break
+            if canReserve:
+                resource = model.Resource.get_by_id(rid)
+                resource.lastReserveTime = datetime.now()
+                resource.put()
+                resource = model.Resource.get_by_id(rid)
+                reservation = model.Reservation()
+                reservation.author = users.get_current_user()
+                reservation.description = description
+                reservation.nickname = name
+                reservation.startTime = startTime
+                reservation.endTime = endTime
+                rid = long(rid)
+                reservation.rid = int(rid)
+                reservation.put()
+                temp = repr(int(rid))
+                url = '/viewReservations?rid=' + temp
+                self.redirect(url)
 
-            resource = model.Resource.get_by_id(rid)
-            resource.lastReserveTime = datetime.datetime.now().time()
-            resource.put()
-            reservation = model.Reservation()
-            reservation.author = users.get_current_user()
-            reservation.description = description
-            reservation.nickname = name
-            rid = long(rid)
-            reservation.rid = int(rid)
-            reservation.put()
-            temp = repr(int(rid))
-            url = '/view?rid=' + temp
-            self.redirect(url)
 
 application = webapp2.WSGIApplication([('/creater', createResource),
                                         ('/createreservation', createReservation)], 

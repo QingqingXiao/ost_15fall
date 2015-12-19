@@ -20,6 +20,10 @@ handlers:
 - url: /
   script: landing.application
 
+- url: /(viewyourresource|viewyourreservations)
+  script: user.application
+  login: required
+
 - url: /deleteAll
   script: deleteAll.application
   
